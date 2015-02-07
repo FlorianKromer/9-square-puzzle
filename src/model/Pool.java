@@ -7,9 +7,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.MatchResult;
+
+import run.Main;
 
 public class Pool{
 
@@ -61,14 +64,53 @@ public class Pool{
 		}
 
 		Pool result = new Pool();
-		
-		
+
 		for (Piece p : loadedPieces) {
 			result.addPiece(p);
 		}
 		return result;
 	}
-	
+
+	private ArrayList<Piece> resolve(int profondeur, ArrayList<Piece> l){
+
+		//8e piece is always ok
+		if(profondeur == Math.pow(Main.SIZE, 2)-1){
+			return l;
+		}
+		
+		boolean firstLine = profondeur>=0 && profondeur<=Main.SIZE-1;
+		boolean lastLine = profondeur>=Math.pow(Main.SIZE, 2)-Main.SIZE && profondeur<=Math.pow(Main.SIZE, 2)-1;
+		
+		if(profondeur == 2 || profondeur == 5 ){
+			//pas de check à droite
+		}
+		else if(firstLine || lastLine ){
+			System.out.println("profondeur:"+profondeur+" => first/last line");
+			l.get(profondeur).compareRight(l.get(profondeur+1));
+		}
+		else{
+			System.out.println("profondeur:"+profondeur+" => other line");
+
+			for (int i = 0; i < l.size(); i++) {
+				if (i == profondeur) {
+					continue;
+				}
+				boolean compareRight = l.get(profondeur).compareRight(l.get(i));
+				boolean compareTop = l.get(profondeur).compareTop(l.get(i));
+				boolean compareBottom = l.get(profondeur).compareBottom(l.get(i));
+				if(  (compareBottom && compareRight && compareTop) ){
+					//System.out.println("DEBUG: retour piece precedante");
+					//return resolve(--profondeur, l);
+					Collections.swap(l, ++profondeur, i);
+
+				}
+			}
+
+		}
+		System.out.println("DEBUG: avance piece");
+		return resolve(++profondeur, l);
+
+	}
 
 
 	private void addPiece(Piece p) {
@@ -102,6 +144,7 @@ public class Pool{
 
 	public boolean isPerfect() {
 		// TODO Auto-generated method stub
+		System.out.println(resolve(0, pieces));
 		return false;
 	}
 

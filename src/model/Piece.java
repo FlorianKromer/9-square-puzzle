@@ -80,11 +80,44 @@ public class Piece {
 		this.left = left;
 	}
 
+	public String concat(String s, int size){
+		int r  = size - s.length();
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < r/2; i++) {
+			sb.append(" ");
+		}
+		sb.append(s);
+		for (int i = 0; i < r - r/2; i++) {
+			sb.append(" ");
+		}
+		return sb.toString();
+	}
 	@Override
 	public String toString() {
-		return "Piece [letter=" + letter + ", top=" + top + ", bottom="
-				+ bottom + ", right=" + right + ", left=" + left + "]";
+		
+		return "+----------+"+"\n|"+
+		concat(top+"", 10)+"|\n|"+
+		concat(left+"", 4)+letter+concat(right+"", 4)+" |\n|"+
+		concat(bottom+"", 10)+"|\n"+
+				"+----------+"+"\n";
+
 	}
+
+	public boolean compareRight(Piece p2){
+		return Math.abs(this.right - p2.left) == 0;
+	}
+	public boolean compareTop(Piece p2){
+		return Math.abs(this.top - p2.bottom) == 0;
+	}
+	
+	public boolean compareLeft(Piece p2){
+		return Math.abs(this.left - p2.right) == 0;
+	}
+	
+	public boolean compareBottom(Piece p2){
+		return Math.abs(this.bottom - p2.top) == 0;
+	}
+
 
 
 
