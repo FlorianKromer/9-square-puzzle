@@ -45,15 +45,15 @@ public class Main {
 
 		   Pool puzzle = new Pool();
 		   puzzle.load(dataPath);
-
-		   System.out.println(String.format("Le puzzle \"%s\" (%s) %s", puzzle.getTitle(), dataPath,
-		   puzzle.isPerfect() ? "est parfait." : "n'est pas parfait."));
-
-		   System.out.println(String.format("Il contient les %d pièces suivantes :", puzzle.getPieces().size()));
-		   for (Piece p : puzzle.getPieces()) {
-		      System.out.println(p);
-
-		   }
+		   puzzle.isPerfect();
+//		   System.out.println(String.format("Le puzzle \"%s\" (%s) %s", puzzle.getTitle(), dataPath,
+//		   puzzle.isPerfect() ? "est parfait." : "n'est pas parfait."));
+//
+//		   System.out.println(String.format("Il contient les %d pièces suivantes :", puzzle.getPieces().size()));
+//		   for (Piece p : puzzle.getPieces()) {
+//		      System.out.println(p);
+//
+//		   }
 
 		}
 }

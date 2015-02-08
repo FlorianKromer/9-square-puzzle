@@ -7,6 +7,7 @@ public class Piece {
 	private int bottom;
 	private int right;
 	private int left;
+	private boolean estPose;
 
 	public static final int TOP = 0;
 
@@ -18,6 +19,23 @@ public class Piece {
 
 	public Piece(String letter) {
 		this.letter = letter;
+		this.estPose = false;
+	}
+	
+	/**
+	 * Permet de pivoter une pièce
+	 * Surement optimisable...
+	 */
+	public Piece pivoter(){
+		int rightTmp = this.top;
+		int bottomTmp = this.right;
+		int leftTmp = this.bottom;
+		int topTmp = this.left;
+		this.top = topTmp;
+		this.right = rightTmp;
+		this.left = leftTmp;
+		this.bottom = bottomTmp;
+		return this;
 	}
 
 	public void setValueAt(int direction, int value){
@@ -104,22 +122,32 @@ public class Piece {
 	}
 
 	public boolean compareRight(Piece p2){
-		return Math.abs(this.right - p2.left) == 0;
+		System.out.println(this.right +  " : "  + p2.left);
+		return this.right + p2.left == 0;
 	}
 	public boolean compareTop(Piece p2){
-		return Math.abs(this.top - p2.bottom) == 0;
+		return this.top + p2.bottom == 0;
 	}
 	
 	public boolean compareLeft(Piece p2){
-		return Math.abs(this.left - p2.right) == 0;
+		return this.left + p2.right == 0;
 	}
 	
 	public boolean compareBottom(Piece p2){
-		return Math.abs(this.bottom - p2.top) == 0;
+		return this.bottom + p2.top == 0;
 	}
 
-
-
+	public void prendre(){
+		this.estPose = true;
+	}
+	
+	public void retirer(){
+		this.estPose = false;
+	}
+	
+	public boolean isPose(){
+		return estPose;
+	}
 
 
 }
