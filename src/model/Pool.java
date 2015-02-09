@@ -13,16 +13,41 @@ import java.util.regex.MatchResult;
 
 public class Pool {
 
+	/**
+	 * Les pièces du puzzle
+	 */
 	private ArrayList<Piece> pieces;
+	/**
+	 * Le titre du puzzle
+	 */
 	private String title;
+	/**
+	 * Toutes les solutions du puzzle
+	 */
 	private ArrayList<Piece[]> solutions;
+	/**
+	 * La largeur (ou longueur) du puzzle
+	 */
 	private int size;
+	/**
+	 * Le temps que dure la recherche de solutions
+	 */
 	private long duree;
-
+	/**
+	 * Le nombre d'appel recursif
+	 */
+	private int nbAppel;
+	/**
+	 * Nombre de piece + position testé
+	 */
+	private int pieceTry;
+	
 	public Pool() {
 		pieces = new ArrayList<Piece>();
 		title = "";
 		solutions = new ArrayList<Piece[]>();
+		nbAppel = 0;
+		pieceTry = 0;
 	}
 
 	public void load(String path) {
@@ -76,10 +101,18 @@ public class Pool {
 	}
 
 	/**
-	 * Main.SIZE représente la taille d'un coté de la grille
+	 * Fonction récursive de backtracking permettant de résoudre un puzzle
+	 * 
+	 * @param profondeur
+	 *            : La place où l'on cherche une pièce qui pourrait correspondre
+	 * @param l
+	 *            : La solution courrante
 	 */
 	private void resolve(int profondeur, ArrayList<Piece> l) {
-		// si la profondeur = l'avant derniere case c'est bon
+		
+		this.nbAppel++;
+		// si la profondeur correspond au nombre de case a place, on a fini
+		// (BaseCase)
 		if (profondeur == Math.pow(this.size, 2)) {
 			this.addSolutions(l);
 			System.out.println("TROUVE");
@@ -90,59 +123,64 @@ public class Pool {
 		// on se trouve en fin de ligne
 		boolean startLine = profondeur % this.size == 0 && profondeur != 0;
 
-		/* La piece trouvé */
+		/* Parcourt de toutes les pieces */
 		for (int j = 0; j < this.pieces.size(); j++) {
 
 			Piece p = this.pieces.get(j);
-			
+
+			/* Si la piece est deja posé, on prend la suivant */
 			if (p.isPose())
 				continue;
-			
+
+			/* On fait pivoter la piece 4x */
 			for (int i = 0; i < 4; i++) {
+				this.pieceTry++;
+				
 				p.pivoter();
-				
+
 				boolean estOk = false;
-				
+
+				/*
+				 * Si c'est la premiere piece a placer, elle correspond
+				 * forcement
+				 */
 				if (profondeur == 0) {
 					estOk = true;
 				} else
+					
 				/*
 				 * Si on est a la premiere ligne, et pas en fin de ligne; Il
 				 * faut chercher un piece qui match uniquement avec la droite de
-				 * la piece courrant
+				 * la piece courante
 				 */
 				if (firstLine && !startLine) {
-
 					if (l.get(profondeur - 1).getRight() + p.getLeft() == 0) {
 						estOk = true;
 					}
-
 				} else
+					
 				/*
 				 * Si on est en fin de ligne, il faut checher une piece qui
 				 * match uniquement avec le bas de la piece du début de la ligne
 				 * courrante
 				 */
 				if (startLine) {
-
 					if (l.get(profondeur - this.size).getBottom() + p.getTop() == 0) {
 						estOk = true;
 					}
-
 				}
+				
 				/*
 				 * Sinon, on cherche une piece qui match avec la droite de la
 				 * piece courrant et le bas de la piece en dessous de la ligne
 				 * du dessous
 				 */
 				else {
-
 					if (p.getLeft() + l.get(profondeur - 1).getRight() == 0
 							&& p.getTop()
 									+ l.get(profondeur - this.size).getBottom() == 0) {
 						estOk = true;
 					}
-
 				}
 
 				if (estOk) {
@@ -194,16 +232,18 @@ public class Pool {
 		resolve(0, new ArrayList<Piece>());
 		this.duree = System.currentTimeMillis() - start;
 		int j = 1;
-		for(Piece[] s:this.solutions){
+		for (Piece[] s : this.solutions) {
 			System.out.println("------------SOLUTION N°" + j + "------------");
-			for(int i = 0; i < s.length; i++){
+			for (int i = 0; i < s.length; i++) {
 				System.out.println(s[i]);
 			}
 			System.out.println("------------END SOLUTION------------");
 			j++;
 		}
-		
+
 		System.out.println("Durée d'éxécution : " + this.duree + " ms");
+		System.out.println("Nombre d'appels récursif : " + this.nbAppel);
+		System.out.println("Nombre de configuration essayées : " + this.pieceTry);
 		return true;
 	}
 
@@ -213,6 +253,14 @@ public class Pool {
 
 	public void setSolutions(ArrayList<Piece[]> solutions) {
 		this.solutions = solutions;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
 	}
 
 }

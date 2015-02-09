@@ -10,7 +10,7 @@ import view.MainFrame;
 public class MainView {
 	public static final int SIZE = 3;
 	public static final int PIECE = 100;
-	
+
 
 	public static void main(String[] args) {
 		System.out.println("" +
@@ -47,16 +47,8 @@ public class MainView {
 
 		Pool puzzle = new Pool();
 		puzzle.load(dataPath);
-
-		System.out.println(String.format("Le puzzle \"%s\" (%s) %s", puzzle.getTitle(), dataPath,
-				puzzle.isPerfect() ? "est parfait." : "n'est pas parfait."));
-
-		System.out.println(String.format("Il contient les %d pièces suivantes :", puzzle.getPieces().size()));
-		for (Piece p : puzzle.getPieces()) {
-			System.out.println(p);
-
-		}
-
+		puzzle.isPerfect();
+		
 		MainFrame mainFrame = new MainFrame(puzzle);
 		mainFrame.setVisible(true);
 	}

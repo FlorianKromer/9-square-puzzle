@@ -6,11 +6,13 @@ import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import model.Piece;
 import model.Pool;
@@ -33,7 +35,7 @@ public class OverviewPanel extends JPanel {
 	/**
 	 * button for switch
 	 */
-	JButton next,previous;
+	JButton nextButton,previousButton;
 	/**
 	 * display the position
 	 */
@@ -42,19 +44,23 @@ public class OverviewPanel extends JPanel {
 	 * for interface only
 	 */
 	JPanel gui;
-	
+
+	/**
+	 * file chooser
+	 */
+    JButton openButton;
+
 	/**
 	 * constructeur
 	 */
 	public OverviewPanel(Pool puzzle) {
 		setLayout(new BorderLayout());
 		this.puzzle = puzzle;
-		next = new JButton("Next");
-		previous = new JButton("Previous");
+		nextButton = new JButton("Next");
+		previousButton = new JButton("Previous");
 		gui = new JPanel();
 		positionList = 1;
-		
-		positionText = new JLabel(positionList+" / "+puzzle.getSolutions().size());
+		openButton = new JButton("Parcourir"); 
 
 		initGUI();
 	}
@@ -62,7 +68,7 @@ public class OverviewPanel extends JPanel {
 	 * create the interface for switch between answers
 	 */
 	private void initGUI() {
-		previous.addActionListener(new ActionListener() {
+		previousButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -75,7 +81,7 @@ public class OverviewPanel extends JPanel {
 			}
 		});
 
-		next.addActionListener(new ActionListener() {
+		nextButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -86,20 +92,45 @@ public class OverviewPanel extends JPanel {
 				}
 			}
 		});
+	    openButton.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent ae) {
+	          JFileChooser chooser = new JFileChooser();
+	          chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+	          int option = chooser.showOpenDialog(OverviewPanel.this);
+	          if (option == JFileChooser.APPROVE_OPTION) {
+	            UpdatePuzzle(chooser.getSelectedFile().getAbsolutePath());
 
+	          }
+	          else {
+	        	  JOptionPane.showMessageDialog(null,"alert");
+	          }
+	        }
+	      });
+	    
+		positionText = new JLabel(positionList+" / "+puzzle.getSolutions().size());
+
+		gui.add(openButton);
+		gui.add(previousButton);
+		gui.add(nextButton);
 		
-
-		gui.add(previous);
-		gui.add(next);
 		gui.add(positionText);
 		this.add(gui, BorderLayout.SOUTH);
+	}
+	public void UpdatePuzzle(String path){
+		Pool p = new Pool();
+		p.load(path);
+		p.isPerfect();
+		this.puzzle = p;
+		initGUI();
+		repaint();
+		
 	}
 	@Override
 	protected void paintComponent(Graphics g) {
 		// TODO Auto-generated method stub
 		super.paintComponent(g);
 
-		int x = 0,y = 0;
+		int x = 0,y = 0,i=0;
 
 		for (Piece it : puzzle.getSolutions().get(positionList-1)) {
 			g.drawRect(x, y, MainView.PIECE, MainView.PIECE);
@@ -110,7 +141,8 @@ public class OverviewPanel extends JPanel {
 			g.drawString(it.getRight()+"",(int)( x+MainView.PIECE*0.8),(int)( y+MainView.PIECE*0.5));
 
 			x=x+MainView.PIECE;
-			if(x % MainView.SIZE == 0){
+			i++;
+			if(i % puzzle.getSize() == 0){
 				x=0;
 				y=y+MainView.PIECE;
 			}
