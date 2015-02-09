@@ -1,0 +1,134 @@
+package view;
+
+
+
+import java.awt.BorderLayout;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import model.Piece;
+import model.Pool;
+import run.MainView;
+
+
+
+public class OverviewPanel extends JPanel {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private Pool puzzle;
+	/**
+	 * position in the solution list
+	 */
+	private int positionList;
+	/**
+	 * button for switch
+	 */
+	JButton next,previous;
+	/**
+	 * display the position
+	 */
+	JLabel positionText;
+	/**
+	 * for interface only
+	 */
+	JPanel gui;
+	
+	/**
+	 * constructeur
+	 */
+	public OverviewPanel(Pool puzzle) {
+		setLayout(new BorderLayout());
+		this.puzzle = puzzle;
+		next = new JButton("Next");
+		previous = new JButton("Previous");
+		gui = new JPanel();
+		positionList = 1;
+		
+		positionText = new JLabel(positionList+" / "+puzzle.getSolutions().size());
+
+		initGUI();
+	}
+	/**
+	 * create the interface for switch between answers
+	 */
+	private void initGUI() {
+		previous.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(positionList>1){
+					positionList--;
+					positionText.setText(positionList+" / "+puzzle.getSolutions().size());
+					repaint();
+
+				}
+			}
+		});
+
+		next.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(positionList < puzzle.getSolutions().size()){
+					positionList++;
+					positionText.setText(positionList+" / "+puzzle.getSolutions().size());
+					repaint();
+				}
+			}
+		});
+
+		
+
+		gui.add(previous);
+		gui.add(next);
+		gui.add(positionText);
+		this.add(gui, BorderLayout.SOUTH);
+	}
+	@Override
+	protected void paintComponent(Graphics g) {
+		// TODO Auto-generated method stub
+		super.paintComponent(g);
+
+		int x = 0,y = 0;
+
+		for (Piece it : puzzle.getSolutions().get(positionList-1)) {
+			g.drawRect(x, y, MainView.PIECE, MainView.PIECE);
+			g.drawString(it.getLetter(),(int)( x+MainView.PIECE*0.45),(int)( y+MainView.PIECE*0.5));
+			g.drawString(it.getTop()+"",(int)( x+MainView.PIECE*0.45),(int)( y+MainView.PIECE*0.2));
+			g.drawString(it.getBottom()+"",(int)( x+MainView.PIECE*0.45),(int)( y+MainView.PIECE*0.9));
+			g.drawString(it.getLeft()+"",(int)( x+MainView.PIECE*.1),(int)( y+MainView.PIECE*0.5));
+			g.drawString(it.getRight()+"",(int)( x+MainView.PIECE*0.8),(int)( y+MainView.PIECE*0.5));
+
+			x=x+MainView.PIECE;
+			if(x % MainView.SIZE == 0){
+				x=0;
+				y=y+MainView.PIECE;
+			}
+		}
+	}
+
+	@Override
+	public void repaint() {
+		// TODO Auto-generated method stub
+		super.repaint();
+
+	}
+	public Pool getPuzzle() {
+		return puzzle;
+	}
+
+	public void setPuzzle(Pool puzzle) {
+		this.puzzle = puzzle;
+	}
+
+}

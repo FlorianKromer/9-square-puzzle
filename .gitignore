@@ -50,7 +50,4 @@ local.properties
 
 
 #temporary uncommit 
-src/view/
 src/tests/
-src/controller/
-MainView.java
