@@ -148,6 +148,14 @@ public class Piece {
 	public boolean isPose(){
 		return estPose;
 	}
-
+	
+	public Piece duplique(){
+		Piece p = new Piece(this.letter);
+		p.top = this.top;
+		p.left = this.left;
+		p.right = this.right;
+		p.bottom = this.bottom;
+		return p;
+	}
 
 }

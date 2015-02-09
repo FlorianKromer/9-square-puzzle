@@ -11,18 +11,18 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.MatchResult;
 
-import run.Main;
-
 public class Pool {
 
 	private ArrayList<Piece> pieces;
 	private String title;
-	private ArrayList<ArrayList<Piece>> solutions;
+	private ArrayList<Piece[]> solutions;
+	private int size;
+	private long duree;
 
 	public Pool() {
 		pieces = new ArrayList<Piece>();
 		title = "";
-		solutions = new ArrayList<ArrayList<Piece>>();
+		solutions = new ArrayList<Piece[]>();
 	}
 
 	public void load(String path) {
@@ -38,6 +38,7 @@ public class Pool {
 			e.printStackTrace();
 		} finally {
 			if (reader != null) {
+				this.size = (int) Math.sqrt(this.pieces.size());
 				try {
 					reader.close();
 				} catch (IOException e) {
@@ -79,84 +80,88 @@ public class Pool {
 	 */
 	private void resolve(int profondeur, ArrayList<Piece> l) {
 		// si la profondeur = l'avant derniere case c'est bon
-		if (profondeur == Math.pow(Main.SIZE, 2)) {
-			this.solutions.add((ArrayList<Piece>) l.clone());
-			for(Piece pp:l){
-				System.out.println(pp);
-			}
+		if (profondeur == Math.pow(this.size, 2)) {
+			this.addSolutions(l);
 			System.out.println("TROUVE");
 			return;
 		}
 		// on se trouve sur la premiere ligne
-		boolean firstLine = profondeur >= 0 && profondeur <= Main.SIZE - 1;
-		// on se trouve sur la derniere ligne
-		// boolean lastLine = profondeur >= Math.pow(Main.SIZE, 2) - Main.SIZE
-		// && profondeur <= Math.pow(Main.SIZE, 2) - 1;
+		boolean firstLine = profondeur >= 0 && profondeur <= this.size - 1;
 		// on se trouve en fin de ligne
-		boolean startLine = profondeur % Main.SIZE == 0 && profondeur != 0;
+		boolean startLine = profondeur % this.size == 0 && profondeur != 0;
 
 		/* La piece trouvé */
 		for (int j = 0; j < this.pieces.size(); j++) {
-			boolean estOk = false;
-
-			if (this.pieces.get(j).isPose())
-				continue;
 
 			Piece p = this.pieces.get(j);
-			if (profondeur == 0) {
-				estOk = true;
-			} else
-			/*
-			 * Si on est a la premiere ligne, et pas en fin de ligne; Il faut
-			 * chercher un piece qui match uniquement avec la droite de la piece
-			 * courrant
-			 */
-			if (firstLine && !startLine) {
-				for (int i = 0; i < 4; i++) {
-					p = p.pivoter();
+			
+			if (p.isPose())
+				continue;
+			
+			for (int i = 0; i < 4; i++) {
+				p.pivoter();
+				
+				boolean estOk = false;
+				
+				if (profondeur == 0) {
+					estOk = true;
+				} else
+				/*
+				 * Si on est a la premiere ligne, et pas en fin de ligne; Il
+				 * faut chercher un piece qui match uniquement avec la droite de
+				 * la piece courrant
+				 */
+				if (firstLine && !startLine) {
+
 					if (l.get(profondeur - 1).getRight() + p.getLeft() == 0) {
 						estOk = true;
-						break;
 					}
-				}
-			} else
-			/*
-			 * Si on est en fin de ligne, il faut checher une piece qui match
-			 * uniquement avec le bas de la piece du début de la ligne courrante
-			 */
-			if (startLine) {
-				for (int i = 0; i < 4; i++) {
-					p = p.pivoter();
-					if (l.get(profondeur - Main.SIZE).getBottom() + p.getTop() == 0) {
+
+				} else
+				/*
+				 * Si on est en fin de ligne, il faut checher une piece qui
+				 * match uniquement avec le bas de la piece du début de la ligne
+				 * courrante
+				 */
+				if (startLine) {
+
+					if (l.get(profondeur - this.size).getBottom() + p.getTop() == 0) {
 						estOk = true;
-						break;
 					}
+
 				}
-			}
-			/*
-			 * Sinon, on cherche une piece qui match avec la droite de la piece
-			 * courrant et le bas de la piece en dessous de la ligne du dessous
-			 */
-			else {
-				for (int i = 0; i < 4; i++) {
-					p = p.pivoter();
+				/*
+				 * Sinon, on cherche une piece qui match avec la droite de la
+				 * piece courrant et le bas de la piece en dessous de la ligne
+				 * du dessous
+				 */
+				else {
+
 					if (p.getLeft() + l.get(profondeur - 1).getRight() == 0
 							&& p.getTop()
-									+ l.get(profondeur - Main.SIZE).getBottom() == 0) {
+									+ l.get(profondeur - this.size).getBottom() == 0) {
 						estOk = true;
-						break;
 					}
+
+				}
+
+				if (estOk) {
+					p.prendre();
+					l.add(p);
+					resolve(profondeur + 1, l);
+					l.remove(profondeur);
+					p.retirer();
 				}
 			}
-			
-			if (estOk) {
-				p.prendre();
-				l.add(p);
-				resolve(profondeur + 1, l);
-				l.remove(profondeur);
-				p.retirer();
-			}
 		}
+	}
+
+	private void addSolutions(ArrayList<Piece> l) {
+		Piece[] solution = new Piece[l.size()];
+		for (int i = 0; i < l.size(); i++) {
+			solution[i] = l.get(i).duplique();
+		}
+		this.solutions.add(solution);
 	}
 
 	private void addPiece(Piece p) {
@@ -185,12 +190,21 @@ public class Pool {
 	}
 
 	public boolean isPerfect() {
+		long start = System.currentTimeMillis();
 		resolve(0, new ArrayList<Piece>());
-		System.out.println(this.solutions.size());
-		for (Piece pp:this.solutions.get(0)){
-			System.out.println(pp);
+		this.duree = System.currentTimeMillis() - start;
+		int j = 1;
+		for(Piece[] s:this.solutions){
+			System.out.println("------------SOLUTION N°" + j + "------------");
+			for(int i = 0; i < s.length; i++){
+				System.out.println(s[i]);
+			}
+			System.out.println("------------END SOLUTION------------");
+			j++;
 		}
-		return false;
+		
+		System.out.println("Durée d'éxécution : " + this.duree + " ms");
+		return true;
 	}
 
 }
