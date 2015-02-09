@@ -8,7 +8,7 @@ import model.Pool;
 
 
 public class Main {
-	public final static int SIZE = 3;
+	public final static int SIZE = 4;
 		   
 	public static void main(String[] args) {
 		System.out.println("" +
