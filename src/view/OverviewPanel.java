@@ -61,8 +61,16 @@ public class OverviewPanel extends JPanel {
 		gui = new JPanel();
 		positionList = 1;
 		openButton = new JButton("Parcourir"); 
+		positionText = new JLabel();
 
 		initGUI();
+		
+		gui.add(openButton);
+		gui.add(previousButton);
+		gui.add(nextButton);
+		
+		gui.add(positionText);
+		this.add(gui, BorderLayout.SOUTH);
 	}
 	/**
 	 * create the interface for switch between answers
@@ -107,14 +115,9 @@ public class OverviewPanel extends JPanel {
 	        }
 	      });
 	    
-		positionText = new JLabel(positionList+" / "+puzzle.getSolutions().size());
+		positionText.setText(positionList+" / "+puzzle.getSolutions().size());
 
-		gui.add(openButton);
-		gui.add(previousButton);
-		gui.add(nextButton);
-		
-		gui.add(positionText);
-		this.add(gui, BorderLayout.SOUTH);
+
 	}
 	public void UpdatePuzzle(String path){
 		Pool p = new Pool();
