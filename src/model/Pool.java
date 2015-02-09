@@ -247,4 +247,12 @@ public class Pool {
 		return true;
 	}
 
+	public ArrayList<Piece[]> getSolutions() {
+		return solutions;
+	}
+
+	public void setSolutions(ArrayList<Piece[]> solutions) {
+		this.solutions = solutions;
+	}
+
 }
