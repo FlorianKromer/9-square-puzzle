@@ -14,7 +14,7 @@ import java.util.regex.MatchResult;
 public class Pool {
 
 	/**
-	 * Les pièces du puzzle
+	 * Les piï¿½ces du puzzle
 	 */
 	private ArrayList<Piece> pieces;
 	/**
@@ -38,10 +38,10 @@ public class Pool {
 	 */
 	private int nbAppel;
 	/**
-	 * Nombre de piece + position testé
+	 * Nombre de piece + position testï¿½
 	 */
 	private int pieceTry;
-	
+
 	public Pool() {
 		pieces = new ArrayList<Piece>();
 		title = "";
@@ -50,7 +50,7 @@ public class Pool {
 		pieceTry = 0;
 	}
 
-	public void load(String path) {
+	public void load(String path) throws PoolSizeException {
 		LineNumberReader reader = null;
 		try {
 			reader = new LineNumberReader(new InputStreamReader(
@@ -63,7 +63,13 @@ public class Pool {
 			e.printStackTrace();
 		} finally {
 			if (reader != null) {
-				this.size = (int) Math.sqrt(this.pieces.size());
+				// Permet de dÃ©tecter si c'est un carrÃ©
+				double sqrt = Math.sqrt(this.pieces.size());
+				// Si il n'y a pas de racine entiÃ¨re, la taille n'est pas valide
+				if (sqrt % 1 != 0) {
+					throw new PoolSizeException("Taille de la liste invalide");
+				}
+				this.size = (int) sqrt;
 				try {
 					reader.close();
 				} catch (IOException e) {
@@ -101,15 +107,15 @@ public class Pool {
 	}
 
 	/**
-	 * Fonction récursive de backtracking permettant de résoudre un puzzle
+	 * Fonction rï¿½cursive de backtracking permettant de rï¿½soudre un puzzle
 	 * 
 	 * @param profondeur
-	 *            : La place où l'on cherche une pièce qui pourrait correspondre
+	 *            : La place oï¿½ l'on cherche une piï¿½ce qui pourrait correspondre
 	 * @param l
 	 *            : La solution courrante
 	 */
 	private void resolve(int profondeur, ArrayList<Piece> l) {
-		
+
 		this.nbAppel++;
 		// si la profondeur correspond au nombre de case a place, on a fini
 		// (BaseCase)
@@ -128,14 +134,14 @@ public class Pool {
 
 			Piece p = this.pieces.get(j);
 
-			/* Si la piece est deja posé, on prend la suivant */
+			/* Si la piece est deja posï¿½, on prend la suivant */
 			if (p.isPose())
 				continue;
 
 			/* On fait pivoter la piece 4x */
 			for (int i = 0; i < 4; i++) {
 				this.pieceTry++;
-				
+
 				p.pivoter();
 
 				boolean estOk = false;
@@ -147,7 +153,7 @@ public class Pool {
 				if (profondeur == 0) {
 					estOk = true;
 				} else
-					
+
 				/*
 				 * Si on est a la premiere ligne, et pas en fin de ligne; Il
 				 * faut chercher un piece qui match uniquement avec la droite de
@@ -158,10 +164,10 @@ public class Pool {
 						estOk = true;
 					}
 				} else
-					
+
 				/*
 				 * Si on est en fin de ligne, il faut checher une piece qui
-				 * match uniquement avec le bas de la piece du début de la ligne
+				 * match uniquement avec le bas de la piece du dï¿½but de la ligne
 				 * courrante
 				 */
 				if (startLine) {
@@ -169,7 +175,7 @@ public class Pool {
 						estOk = true;
 					}
 				}
-				
+
 				/*
 				 * Sinon, on cherche une piece qui match avec la droite de la
 				 * piece courrant et le bas de la piece en dessous de la ligne
@@ -233,7 +239,7 @@ public class Pool {
 		this.duree = System.currentTimeMillis() - start;
 		int j = 1;
 		for (Piece[] s : this.solutions) {
-			System.out.println("------------SOLUTION N°" + j + "------------");
+			System.out.println("------------SOLUTION Nï¿½" + j + "------------");
 			for (int i = 0; i < s.length; i++) {
 				System.out.println(s[i]);
 			}
@@ -241,9 +247,10 @@ public class Pool {
 			j++;
 		}
 
-		System.out.println("Durée d'éxécution : " + this.duree + " ms");
-		System.out.println("Nombre d'appels récursif : " + this.nbAppel);
-		System.out.println("Nombre de configuration essayées : " + this.pieceTry);
+		System.out.println("Durï¿½e d'ï¿½xï¿½cution : " + this.duree + " ms");
+		System.out.println("Nombre d'appels rï¿½cursif : " + this.nbAppel);
+		System.out.println("Nombre de configuration essayï¿½es : "
+				+ this.pieceTry);
 		return true;
 	}
 

@@ -18,10 +18,7 @@ public class MainFrame extends JFrame {
 	private OverviewPanel overviewPanel;
 	private Component currentContent;
 	
-	private Pool puzzle;
-	
 	public MainFrame(Pool puzzle) {
-		this.puzzle = puzzle;
 		
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BorderLayout());
