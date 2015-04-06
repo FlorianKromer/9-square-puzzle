@@ -114,8 +114,8 @@ public class Pool {
 	 * @param l
 	 *            : La solution courrante
 	 */
-	private void resolve(int profondeur, ArrayList<Piece> l) {
-
+	private void resolve(int profondeur, ArrayList<Piece> l,
+			ArrayList<Piece> listPiece) {
 		this.nbAppel++;
 		// si la profondeur correspond au nombre de case a place, on a fini
 		// (BaseCase)
@@ -130,9 +130,9 @@ public class Pool {
 		boolean startLine = profondeur % this.size == 0 && profondeur != 0;
 
 		/* Parcourt de toutes les pieces */
-		for (int j = 0; j < this.pieces.size(); j++) {
+		for (int j = 0; j < listPiece.size(); j++) {
 
-			Piece p = this.pieces.get(j);
+			Piece p = listPiece.get(j);
 
 			/* Si la piece est deja pos�, on prend la suivant */
 			if (p.isPose())
@@ -192,7 +192,7 @@ public class Pool {
 				if (estOk) {
 					p.prendre();
 					l.add(p);
-					resolve(profondeur + 1, l);
+					resolve(profondeur + 1, l, listPiece);
 					l.remove(profondeur);
 					p.retirer();
 				}
@@ -233,20 +233,62 @@ public class Pool {
 		this.pieces = pieces;
 	}
 
+	public static ArrayList<Piece> duplique(ArrayList<Piece> l) {
+		ArrayList<Piece> newList = new ArrayList<Piece>();
+		for (Piece it : l) {
+			newList.add(it.duplique());
+		}
+		return newList;
+	}
+
+	public void resolveHelper() {
+		ArrayList<Thread> listThread = new ArrayList<Thread>();
+		
+		// Pour toutes les pieces
+		for (int j = 0; j < this.pieces.size(); j++) {
+			// Duplique les liste
+			final int place = j;
+			final ArrayList<Piece> lp = this.pieces;
+			Thread t = new Thread() {
+				public void run() {
+					ArrayList<Piece> listPiece = Pool.duplique(lp);
+					Piece p = listPiece.get(place);
+					p.prendre();
+					ArrayList<Piece> l = new ArrayList<Piece>();
+					l.add(p);
+					for (int i = 0; i < 4; i++) {
+						resolve(1, l, listPiece);
+						p.pivoter();
+					}
+				}
+			};
+			t.start();
+			listThread.add(t);
+		}
+		for (Thread t : listThread) {
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public boolean isPerfect() {
 		long start = System.currentTimeMillis();
-		resolve(0, new ArrayList<Piece>());
+//		resolve(0, new ArrayList<Piece>(), this.pieces);
+		resolveHelper();
 		this.duree = System.currentTimeMillis() - start;
-		int j = 1;
-		for (Piece[] s : this.solutions) {
-			System.out.println("------------SOLUTION N�" + j + "------------");
-			for (int i = 0; i < s.length; i++) {
-				System.out.println(s[i]);
-			}
-			System.out.println("------------END SOLUTION------------");
-			j++;
-		}
-
+//		int j = 1;
+//		for (Piece[] s : this.solutions) {
+//			System.out.println("------------SOLUTION N�" + j + "------------");
+//			for (int i = 0; i < s.length; i++) {
+//				System.out.println(s[i]);
+//			}
+//			System.out.println("------------END SOLUTION------------");
+//			j++;
+//		}
+		System.out.println("Nombre de solutions :" + this.solutions.size());
 		System.out.println("Dur�e d'�x�cution : " + this.duree + " ms");
 		System.out.println("Nombre d'appels r�cursif : " + this.nbAppel);
 		System.out.println("Nombre de configuration essay�es : "
