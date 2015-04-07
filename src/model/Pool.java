@@ -3,9 +3,12 @@ package model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -293,7 +296,22 @@ public class Pool {
 		System.out.println("Nombre d'appels r�cursif : " + this.nbAppel);
 		System.out.println("Nombre de configuration essay�es : "
 				+ this.pieceTry);
+		printAverage();
 		return true;
+	}
+
+	private void printAverage() {
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(new FileOutputStream(new File("average.txt"),true ));
+			writer.println(this.duree);
+			writer.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
 	}
 
 	public ArrayList<Piece[]> getSolutions() {
