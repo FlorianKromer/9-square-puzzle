@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -119,31 +118,29 @@ public class Pool {
 	 */
 	private void resolve(int profondeur, ArrayList<Piece> l,
 			ArrayList<Piece> listPiece) {
-		this.nbAppel++;
+//		this.nbAppel++;
 		// si la profondeur correspond au nombre de case a place, on a fini
 		// (BaseCase)
 		if (profondeur == Math.pow(this.size, 2)) {
 			this.addSolutions(l);
-			System.out.println("TROUVE");
 			return;
 		}
 		// on se trouve sur la premiere ligne
 		boolean firstLine = profondeur >= 0 && profondeur <= this.size - 1;
 		// on se trouve en fin de ligne
 		boolean startLine = profondeur % this.size == 0 && profondeur != 0;
-
 		/* Parcourt de toutes les pieces */
-		for (int j = 0; j < listPiece.size(); j++) {
+		for (Piece piece : listPiece) {
 
-			Piece p = listPiece.get(j);
+			Piece p = piece;
 
-			/* Si la piece est deja pos�, on prend la suivant */
+			/* Si la piece est deja posé, on prend la suivante */
 			if (p.isPose())
 				continue;
 
 			/* On fait pivoter la piece 4x */
 			for (int i = 0; i < 4; i++) {
-				this.pieceTry++;
+//				this.pieceTry++;
 
 				p.pivoter();
 
@@ -162,10 +159,9 @@ public class Pool {
 				 * faut chercher un piece qui match uniquement avec la droite de
 				 * la piece courante
 				 */
-				if (firstLine && !startLine) {
-					if (l.get(profondeur - 1).getRight() + p.getLeft() == 0) {
-						estOk = true;
-					}
+				if (firstLine && !startLine
+						&& l.get(profondeur - 1).getRight() + p.getLeft() == 0) {
+					estOk = true;
 				} else
 
 				/*
@@ -173,10 +169,10 @@ public class Pool {
 				 * match uniquement avec le bas de la piece du d�but de la ligne
 				 * courrante
 				 */
-				if (startLine) {
-					if (l.get(profondeur - this.size).getBottom() + p.getTop() == 0) {
-						estOk = true;
-					}
+				if (startLine
+						&& l.get(profondeur - this.size).getBottom()
+								+ p.getTop() == 0) {
+					estOk = true;
 				}
 
 				/*
@@ -246,7 +242,6 @@ public class Pool {
 
 	public void resolveHelper() {
 		ArrayList<Thread> listThread = new ArrayList<Thread>();
-		
 		// Pour toutes les pieces
 		for (int j = 0; j < this.pieces.size(); j++) {
 			// Duplique les liste
@@ -256,6 +251,7 @@ public class Pool {
 				public void run() {
 					ArrayList<Piece> listPiece = Pool.duplique(lp);
 					Piece p = listPiece.get(place);
+					listPiece.remove(place);
 					p.prendre();
 					ArrayList<Piece> l = new ArrayList<Piece>();
 					l.add(p);
@@ -282,20 +278,9 @@ public class Pool {
 //		resolve(0, new ArrayList<Piece>(), this.pieces);
 		resolveHelper();
 		this.duree = System.currentTimeMillis() - start;
-//		int j = 1;
-//		for (Piece[] s : this.solutions) {
-//			System.out.println("------------SOLUTION N�" + j + "------------");
-//			for (int i = 0; i < s.length; i++) {
-//				System.out.println(s[i]);
-//			}
-//			System.out.println("------------END SOLUTION------------");
-//			j++;
-//		}
+
 		System.out.println("Nombre de solutions :" + this.solutions.size());
 		System.out.println("Dur�e d'�x�cution : " + this.duree + " ms");
-		System.out.println("Nombre d'appels r�cursif : " + this.nbAppel);
-		System.out.println("Nombre de configuration essay�es : "
-				+ this.pieceTry);
 		printAverage();
 		return true;
 	}
@@ -303,7 +288,8 @@ public class Pool {
 	private void printAverage() {
 		PrintWriter writer;
 		try {
-			writer = new PrintWriter(new FileOutputStream(new File("average.txt"),true ));
+			writer = new PrintWriter(new FileOutputStream(new File(
+					"average.txt"), true));
 			writer.println(this.duree);
 			writer.close();
 		} catch (FileNotFoundException e) {
@@ -311,7 +297,6 @@ public class Pool {
 			e.printStackTrace();
 		}
 
-		
 	}
 
 	public ArrayList<Piece[]> getSolutions() {
